@@ -1,19 +1,16 @@
-# 🎈 Blank app template
+# 📊 Informacje zbiorcze o naborach KPRM
 
-A simple Streamlit app template for you to modify!
+Prosty dashboard Streamlit pokazujący informacje zbiorcze o naborach na stanowiska w służbie cywilnej.
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+[![Otwórz w Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://tt-nabory-kprm.streamlit.app/)
 
-### How to run it on your own machine
+---
 
-1. Install the requirements
-
-   ```
-   $ pip install -r requirements.txt
-   ```
-
-2. Run the app
-
-   ```
-   $ streamlit run streamlit_app.py
-   ```
+Komendy przydatne przy developmencie:
+```
+uv venv --python 3.13
+uv pip install -r ./requirements.txt
+uv run streamlit run --server.headless=true ./streamlit_app.py
+uv pip install marimo[lsp] ruff
+uv run marimo edit --headless eda.py
+```
