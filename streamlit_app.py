@@ -163,7 +163,9 @@ def load_data():
     df["miejsce_wykonywania_pracy"] = df["miejsce_wykonywania_pracy"].str.strip()
     df["lokalizacja"] = df["lokalizacja"].str.strip()
     df["wynagrodzenie"] = df["wynagrodzenie"].str.strip()
-
+    df["grupa_1_wartosc"] = df["grupa_1_wartosc"].str.strip()
+    df["grupa_2_wartosc"] = df["grupa_2_wartosc"].str.strip()
+    df["grupa_4_wartosc"] = df["grupa_4_wartosc"].str.strip()
     (
         df["widelki_typ"],
         df["brutto_netto"],
@@ -192,6 +194,9 @@ total_offers_without_salary = df.loc[df["widelki_typ"] == "brak"][
 ].sum()
 max_date: str = df["data_wprowadzenia"].max().date().isoformat()
 total_offers_lt_fte = df.loc[df["wymiaretatu"] < 1.0]["liczba_stanowisk_pracy"].sum()
+total_offers_handicapped_priority = df.loc[df["grupa_1_wartosc"] == "TAK"]["liczba_stanowisk_pracy"].sum()
+total_offers_accept_foreigners = df.loc[df["grupa_2_wartosc"] == "TAK"]["liczba_stanowisk_pracy"].sum()
+total_offers_time_bound_contract = df.loc[df["grupa_4_wartosc"] == "TAK"]["liczba_stanowisk_pracy"].sum()
 
 st.metric(label="📅 Najnowsza data dodania ogłoszenia", value=max_date)
 st.divider()
@@ -209,6 +214,18 @@ col2.metric(
 col1.metric(
     label="🕒️ Liczba stanowisk w niepełnym wymiarze etatu",
     value=total_offers_lt_fte,
+)
+col2.metric(
+    label="🗓️ Liczba stanowisk na czas określony (np. projektu)",
+    value=total_offers_time_bound_contract,
+)
+col1.metric(
+    label="♿️ Liczba stanowisk z pierwszeństwem dla osób z niepełnosprawnościami",
+    value=total_offers_handicapped_priority,
+)
+col2.metric(
+    label="🌍️ Liczba stanowisk dostępnych także dla cudzoziemców",
+    value=total_offers_accept_foreigners,
 )
 st.divider()
 
