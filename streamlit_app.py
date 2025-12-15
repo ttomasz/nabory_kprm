@@ -141,9 +141,7 @@ total_offers_without_salary = df.loc[df["widelki_typ"] == "brak"][
     "liczba_stanowisk_pracy"
 ].sum()
 max_date: str = df["data_wprowadzenia"].max().date().isoformat()
-total_offers_lt_fte = df.loc[df["wymiaretatu"] < 1.0][
-    "liczba_stanowisk_pracy"
-].sum()
+total_offers_lt_fte = df.loc[df["wymiaretatu"] < 1.0]["liczba_stanowisk_pracy"].sum()
 
 st.metric(label="Najnowsza data dodania ogłoszenia", value=max_date)
 st.metric(label="Liczba ogłoszeń", value=number_of_offers)
@@ -210,7 +208,23 @@ gte_10k = (
     )
 )
 st.write("Nabory z widełkami wynagrodzeń zaczynającymi się od 10 000")
-st.dataframe(gte_10k)
+st.dataframe(gte_10k, hide_index=True)
+
+top_locations = (
+    df[["miejsce_wykonywania_pracy", "liczba_stanowisk_pracy"]]
+    .groupby(by="miejsce_wykonywania_pracy")
+    .sum()
+    .sort_values(by="liczba_stanowisk_pracy", ascending=False)
+    .reset_index()
+    .rename(
+        columns={
+            "miejsce_wykonywania_pracy": "Miejsce wykonywania pracy",
+            "liczba_stanowisk_pracy": "Liczba stanowisk pracy",
+        }
+    )[:10]
+)
+st.write("Top 10 miejsc")
+st.dataframe(top_locations, hide_index=True)
 
 st.write("Podgląd danych")
-st.dataframe(df)
+st.dataframe(df, hide_index=True)
