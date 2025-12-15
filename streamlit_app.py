@@ -261,7 +261,13 @@ gte_10k = (
     )
 )
 st.write("Nabory z widełkami wynagrodzeń zaczynającymi się od 10 000")
-st.dataframe(gte_10k, hide_index=True)
+st.dataframe(
+    data=gte_10k,
+    hide_index=True,
+    column_config={
+        "url": st.column_config.LinkColumn(disabled=True),
+    },
+)
 
 top_locations = (
     df[["miejsce_wykonywania_pracy", "liczba_stanowisk_pracy"]]
@@ -281,4 +287,10 @@ st.dataframe(top_locations, hide_index=True)
 
 st.divider()
 st.write("Podgląd danych")
-st.dataframe(df, hide_index=True)
+st.dataframe(
+    data=df,
+    hide_index=True,
+    column_config={
+        "url": st.column_config.LinkColumn(disabled=True),
+    },
+)
