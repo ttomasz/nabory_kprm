@@ -1,3 +1,4 @@
+from datetime import timedelta
 import re
 
 import streamlit as st
@@ -92,7 +93,11 @@ def parse_salary(string: str) -> tuple[str | None, str | None, float | None, flo
         raise NotImplementedError(f"Could not parse string: {salary}")
 
 
-@st.cache_data
+@st.cache_data(
+    ttl=timedelta(hours=1),
+    show_spinner=True,
+    show_time=True,
+)
 def load_data():
     print(f"Downloading data from: {XML_FILE_URL}")
     df = pd.read_xml(
