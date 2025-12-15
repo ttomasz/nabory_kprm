@@ -133,6 +133,7 @@ def load_data():
             "etykieta_wzory_oswiadczen",
         ]
     )
+    # TODO: replace with smarter approach
     df["wymiaretatu"] = pd.to_numeric(
         (
             df["wymiaretatu"]
@@ -141,7 +142,19 @@ def load_data():
             .str.replace(",", ".")
             .str.replace("1/1", "1")
             .str.replace("1/2", "0.5")
+            .str.replace("1/5", "0.2")
+            .str.replace("2/5", "0.4")
+            .str.replace("3/5", "0.6")
             .str.replace("4/5", "0.8")
+            .str.replace("1/8", "0.125")
+            .str.replace("2/8", "0.25")
+            .str.replace("1/4", "0.25")
+            .str.replace("3/8", "0.375")
+            .str.replace("4/8", "0.5")
+            .str.replace("5/8", "0.625")
+            .str.replace("6/8", "0.75")
+            .str.replace("3/4", "0.75")
+            .str.replace("7/8", "0.875")
         )
     )
     df["data_wprowadzenia"] = pd.to_datetime(df["data_wprowadzenia"])
