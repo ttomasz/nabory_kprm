@@ -26,7 +26,9 @@ def clean_str(s: str) -> str:
     )
 
 
-def parse_salary(string: str) -> tuple[str | None, str | None, float | None, float | None]:
+def parse_salary(
+    string: str,
+) -> tuple[str | None, str | None, float | None, float | None]:
     salary = clean_str(string)
     if salary is None or salary == "":
         return (
