@@ -143,21 +143,24 @@ total_offers_without_salary = df.loc[df["widelki_typ"] == "brak"][
 max_date: str = df["data_wprowadzenia"].max().date().isoformat()
 total_offers_lt_fte = df.loc[df["wymiaretatu"] < 1.0]["liczba_stanowisk_pracy"].sum()
 
-st.metric(label="Najnowsza data dodania ogłoszenia", value=max_date)
-st.metric(label="Liczba ogłoszeń", value=number_of_offers)
-st.metric(label="Liczba stanowisk", value=total_number_of_offers)
-st.metric(
-    label="Liczba ogłoszeń z podanym wynagrodzeniem",
+st.metric(label="📅 Najnowsza data dodania ogłoszenia", value=max_date)
+st.divider()
+col1, col2 = st.columns(2)
+col1.metric(label="📈 Liczba ogłoszeń", value=number_of_offers)
+col2.metric(label="📈 Liczba stanowisk", value=total_number_of_offers)
+col1.metric(
+    label="💰️ Liczba ogłoszeń z podanym wynagrodzeniem",
     value=number_of_offers - offers_without_salary,
 )
-st.metric(
-    label="Liczba stanowisk z podanym wynagrodzeniem",
+col2.metric(
+    label="💰️ Liczba stanowisk z podanym wynagrodzeniem",
     value=total_number_of_offers - total_offers_without_salary,
 )
-st.metric(
-    label="Liczba stanowisk w niepełnym wymiarze etatu",
+col1.metric(
+    label="🕒️ Liczba stanowisk w niepełnym wymiarze etatu",
     value=total_offers_lt_fte,
 )
+st.divider()
 
 df["wynagrodzenie_kosz"] = pd.cut(
     x=df["wynagrodzenie_od"], bins=list(range(1_000, 21_000, 1_000))
@@ -226,5 +229,6 @@ top_locations = (
 st.write("Top 10 miejsc")
 st.dataframe(top_locations, hide_index=True)
 
+st.divider()
 st.write("Podgląd danych")
 st.dataframe(df, hide_index=True)
