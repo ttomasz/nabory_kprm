@@ -10,6 +10,10 @@ regex_widelki = re.compile(r"od (\d+\.?\d{0,2}) do (\d+\.?\d{0,2})")
 regex_od = re.compile(r"nie mniej niż (\d+\.?\d{0,2})")
 
 
+def netto2brutto(n: float) -> float:
+    return n * 1.37  # approximate
+
+
 def clean_str(s: str) -> str:
     return (
         s.replace(" zł ", " ")
@@ -21,45 +25,71 @@ def clean_str(s: str) -> str:
     )
 
 
-def parse_salary(s: str) -> tuple[str | None, str | None, float | None, float | None]:
-    s = clean_str(s)
-    if s is None or s == "":
+def parse_salary(string: str) -> tuple[str | None, str | None, float | None, float | None]:
+    salary = clean_str(string)
+    if salary is None or salary == "":
         return (
             "brak",
             None,
             None,
             None,
         )
-    elif "około" in s:
+    elif "około" in salary:
+        salary_numeric = pd.to_numeric(salary.replace("około ", ""))
+        if "netto" in string:
+            salary_numeric = netto2brutto(salary_numeric)
+            salary_value_type = "brutto estymowany"
+        else:
+            salary_value_type = "brutto"
         return (
             "~",
-            "netto" if "netto" in s else "brutto",
-            pd.to_numeric(s.replace("około ", "")),
-            pd.to_numeric(s.replace("około ", "")),
+            salary_value_type,
+            salary_numeric,
+            salary_numeric,
         )
-    elif match := regex_widelki.match(s):
+    elif match := regex_widelki.match(salary):
+        salary_numeric_lower = pd.to_numeric(match.group(1))
+        salary_numeric_upper = pd.to_numeric(match.group(2))
+        if "netto" in string:
+            salary_numeric_lower = netto2brutto(salary_numeric_lower)
+            salary_numeric_upper = netto2brutto(salary_numeric_upper)
+            salary_value_type = "brutto estymowany"
+        else:
+            salary_value_type = "brutto"
         return (
             "od_do",
-            "netto" if "netto" in s else "brutto",
-            pd.to_numeric(match.group(1)),
-            pd.to_numeric(match.group(2)),
+            salary_value_type,
+            salary_numeric_lower,
+            salary_numeric_upper,
         )
-    elif match := regex_od.match(s):
+    elif match := regex_od.match(salary):
+        salary_numeric = pd.to_numeric(match.group(1).replace("nie mniej niż ", ""))
+        if "netto" in string:
+            salary_numeric = netto2brutto(salary_numeric)
+            salary_value_type = "brutto estymowany"
+        else:
+            salary_value_type = "brutto"
         return (
             "od",
-            "netto" if "netto" in s else "brutto",
-            pd.to_numeric(match.group(1).replace("nie mniej niż ", "")),
+            salary_value_type,
+            salary_numeric,
             None,
         )
-    elif match := regex_dokladnie.fullmatch(s):
+    elif match := regex_dokladnie.fullmatch(salary):
+        salary_numeric = pd.to_numeric(match.group(1))
+        if "netto" in string:
+            salary_numeric = netto2brutto(salary_numeric)
+            salary_value_type = "brutto estymowany"
+        else:
+            salary_value_type = "brutto"
         return (
             "=",
-            "netto" if "netto" in s else "brutto",
-            pd.to_numeric(match.group(1)),
-            pd.to_numeric(match.group(1)),
+            salary_value_type,
+            salary_numeric,
+            salary_numeric,
         )
     else:
-        raise NotImplementedError(f"Could not parse string: {s}")
+        raise NotImplementedError(f"Could not parse string: {salary}")
 
 
 @st.cache_data
