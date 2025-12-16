@@ -1,5 +1,6 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import re
+import zoneinfo
 
 import streamlit as st
 import pandas as pd
@@ -100,8 +101,9 @@ def parse_salary(
     show_spinner=True,
     show_time=True,
 )
-def load_data():
+def load_data() -> tuple[datetime, pd.DataFrame]:
     print(f"Downloading data from: {XML_FILE_URL}")
+    dt = datetime.now(tz=zoneinfo.ZoneInfo("Europe/Warsaw"))
     df = pd.read_xml(
         XML_FILE_URL,
         xpath=".//oferta",
@@ -176,7 +178,7 @@ def load_data():
     df["brutto_netto"] = df["brutto_netto"].astype("string[pyarrow]")
     df["wynagrodzenie_od"] = df["wynagrodzenie_od"].astype("double[pyarrow]")
     df["wynagrodzenie_do"] = df["wynagrodzenie_do"].astype("double[pyarrow]")
-    return df
+    return dt, df
 
 
 st.title("📊 Informacje zbiorcze o naborach KPRM")
@@ -185,7 +187,7 @@ st.write(
 )
 st.write("Poniżej kilka informacji zbiorczych.")
 
-df = load_data()
+file_dl_time, df = load_data()
 number_of_offers = len(df.index)
 total_number_of_offers = df["liczba_stanowisk_pracy"].sum()
 offers_without_salary = len(df.loc[df["widelki_typ"] == "brak"].index)
@@ -204,6 +206,7 @@ total_offers_time_bound_contract = df.loc[df["grupa_4_wartosc"] == "TAK"][
     "liczba_stanowisk_pracy"
 ].sum()
 
+st.metric(label="📅 Czas pobrania pliku z danymi", value=file_dl_time.isoformat(sep=" ", timespec="seconds"))
 st.metric(label="📅 Najnowsza data dodania ogłoszenia", value=max_date)
 st.divider()
 col1, col2 = st.columns(2)
