@@ -194,9 +194,15 @@ total_offers_without_salary = df.loc[df["widelki_typ"] == "brak"][
 ].sum()
 max_date: str = df["data_wprowadzenia"].max().date().isoformat()
 total_offers_lt_fte = df.loc[df["wymiaretatu"] < 1.0]["liczba_stanowisk_pracy"].sum()
-total_offers_handicapped_priority = df.loc[df["grupa_1_wartosc"] == "TAK"]["liczba_stanowisk_pracy"].sum()
-total_offers_accept_foreigners = df.loc[df["grupa_2_wartosc"] == "TAK"]["liczba_stanowisk_pracy"].sum()
-total_offers_time_bound_contract = df.loc[df["grupa_4_wartosc"] == "TAK"]["liczba_stanowisk_pracy"].sum()
+total_offers_handicapped_priority = df.loc[df["grupa_1_wartosc"] == "TAK"][
+    "liczba_stanowisk_pracy"
+].sum()
+total_offers_accept_foreigners = df.loc[df["grupa_2_wartosc"] == "TAK"][
+    "liczba_stanowisk_pracy"
+].sum()
+total_offers_time_bound_contract = df.loc[df["grupa_4_wartosc"] == "TAK"][
+    "liczba_stanowisk_pracy"
+].sum()
 
 st.metric(label="📅 Najnowsza data dodania ogłoszenia", value=max_date)
 st.divider()
@@ -301,6 +307,55 @@ top_locations = (
 )
 st.write("Top 10 miejsc")
 st.dataframe(top_locations, hide_index=True)
+
+institutions_salary_transparency = pd.DataFrame(
+    {
+        "nazwa_firmy": df["nazwa_firmy"],
+        "liczba_stanowisk_pracy": df["liczba_stanowisk_pracy"],
+        "wynagrodzenie_podane": df["wynagrodzenie_od"].notnull(),
+        "wynagrodzenie_niepodane": df["wynagrodzenie_od"].isnull(),
+    }
+)
+top_institutions_salary_transparency = (
+    institutions_salary_transparency.loc[
+        institutions_salary_transparency["wynagrodzenie_podane"]
+    ][["nazwa_firmy", "liczba_stanowisk_pracy"]]
+    .groupby(by="nazwa_firmy")
+    .sum()
+    .reset_index()
+    .sort_values(by="liczba_stanowisk_pracy", ascending=False)
+    .rename(
+        columns={
+            "nazwa_firmy": "Nazwa firmy",
+            "liczba_stanowisk_pracy": "Liczba stanowisk pracy",
+        }
+    )
+)[:10]
+bottom_institutions_salary_transparency = (
+    institutions_salary_transparency.loc[
+        institutions_salary_transparency["wynagrodzenie_niepodane"]
+    ][["nazwa_firmy", "liczba_stanowisk_pracy"]]
+    .groupby(by="nazwa_firmy")
+    .sum()
+    .reset_index()
+    .sort_values(by="liczba_stanowisk_pracy", ascending=False)
+    .rename(
+        columns={
+            "nazwa_firmy": "Nazwa firmy",
+            "liczba_stanowisk_pracy": "Liczba stanowisk pracy",
+        }
+    )
+)[:10]
+st.write("Jednostki z największą liczbą stanowisk z podanymi widełkami")
+st.dataframe(
+    data=top_institutions_salary_transparency,
+    hide_index=True,
+)
+st.write("Jednostki z największą liczbą stanowisk BEZ podanych widełek")
+st.dataframe(
+    data=bottom_institutions_salary_transparency,
+    hide_index=True,
+)
 
 st.divider()
 st.write("Podgląd danych")
